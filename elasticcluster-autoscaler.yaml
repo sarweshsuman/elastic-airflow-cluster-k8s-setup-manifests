@@ -1,0 +1,20 @@
+apiVersion: elasticcluster.sarweshsuman.com/v1
+kind: ElasticWorkerAutoscaler
+metadata:
+  name: airflow-worker-as
+spec:
+  scaleTargetRef:
+    name: airflow-worker
+    namespace: default
+  metricSpec:
+    name: total_cluster_load
+    resourceName: airflow-worker
+    namespace: default
+  targetValue: 60
+  scaleInSpec:
+    shutdownHttpHook: http://airflow-flower.default.svc.cluster.local:5559/api/worker/shutdown
+    podMetricSpec:
+      name: load
+      namespace: default
+    markForTerminationLabel:
+      delete: "airflow-worker-default"

@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: airflow-postgres
+  name: airflow-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: airflow-postgres
+  template:
+    metadata:
+      labels:
+        app: airflow-postgres
+    spec:
+      containers:
+      - image: airflow-postgres:0.1
+        name: airflow-postgres
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: airflow-postgres
+spec:
+  ports:
+  - port: 5432
+  selector:
+    app: airflow-postgres

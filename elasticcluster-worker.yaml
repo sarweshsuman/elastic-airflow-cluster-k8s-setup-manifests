@@ -1,0 +1,37 @@
+apiVersion: elasticcluster.sarweshsuman.com/v1
+kind: ElasticWorker
+metadata:
+  name: airflow-worker
+spec:
+  minReplicas: 2
+  maxReplicas: 5
+  scaleInPolicy:
+    name: selector
+    selector:
+      matchLabels:
+        delete: "airflow-worker-default"
+  selector:
+    matchLabels:
+      app: airflow-worker
+  template:
+    metadata:
+      labels:
+        app: airflow-worker
+    spec:
+      containers:
+      - image: airflow-slim:0.1
+        name: airflow-worker
+        args:
+        - "worker"
+        volumeMounts:
+        - mountPath: /home/airflow/dags
+          name: airflowdags
+        - mountPath: /home/airflow/logs
+          name: airflowlogs
+      volumes:
+      - name: airflowdags
+        hostPath:
+          path: /home/docker/dags
+      - name: airflowlogs
+        hostPath:
+          path: /home/docker/logs
