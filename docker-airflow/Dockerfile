@@ -2,9 +2,8 @@ FROM python:3.6.10-slim-stretch
 
 RUN apt-get update \
     && apt-get -y install build-essential \
-    && pip install apache-airflow[postgres,celery,rabbitmq]
-
-RUN apt-get -y install procps
+    && pip install apache-airflow[postgres,celery,rabbitmq] \
+    && apt-get -y install procps
 
 ENV AIRFLOW_HOME /home/airflow
 ENV PATH ${AIRFLOW_HOME}/dags:${AIRFLOW_HOME}/plugins:$PATH
