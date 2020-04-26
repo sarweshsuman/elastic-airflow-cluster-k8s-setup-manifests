@@ -2,9 +2,22 @@
 
 This repo contains dockerfiles/yaml for airflow cluster components.
 
-## setting up for demo
+## setting up for demo on mac
 
-- Setup dependent repo & build image & deploy in local minikube
+- setup minikube
+
+  Install minikube
+  ```
+  https://kubernetes.io/docs/tasks/tools/install-minikube/
+  ```
+
+  Make sure minikube vm has enough cpu and memory to run several pods.
+  ```
+  minikube start
+  eval $(minikube docker-env)
+  ```
+
+- Setup dependent repo
 
   ```
   git clone https://github.com/sarweshsuman/elastic-worker-autoscaler.git
@@ -14,8 +27,40 @@ This repo contains dockerfiles/yaml for airflow cluster components.
   make docker-build IMG=elastic-worker-controllers:0.1
   make deploy IMG=elastic-worker-controllers:0.1  
   ```
-  This compiles the controller code and builds image and deploys into kubernetes cluster namespace
+  This compiles the controller code and builds image and deploys into minikube cluster namespace
   > elastic-worker-autoscaler-system
+
+  Validate pod is up and fine.
+  ```
+  kubectl get pods -n elastic-worker-autoscaler-system
+  ```
+
+- Setup custom metric APIserver adapter
+
+  ```
+  git clone https://github.com/sarweshsuman/elastic-worker-custommetrics-adapter.git
+  cd elastic-worker-custommetrics-adapter/
+  GOOS=linux go build -o docker/
+  cd docker/
+  docker build -t elasticworker-custommetric-adapter:0.1 .
+  ```
+
+  This builds custom metric adapter and creates a docker image.
+  Now we will deploy it into minikube.
+
+  ```
+  cd ../manifest
+  kubectl create -f redis-metric-db.yaml
+  kubectl create -f elasticworker-adapter.yaml
+  ```
+
+  Validate all pods are up and fine.
+  ```
+  kubectl get pods -n elasticworker-custommetrics
+  ```
+
+  Goto https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/#support-for-metrics-apis for more info on how to setup custom metrics.
+
 
 - Clone this repo.
 
