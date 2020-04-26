@@ -13,13 +13,13 @@ This repo contains dockerfiles/yaml for airflow cluster components.
 
   Make sure minikube vm has enough cpu and memory to run several pods.
   ```
-  minikube start
+  minikube start --cpus 4 --memory 10240
   eval $(minikube docker-env)
   ```
 
-  Important:
-  Create below directories within minikube vm, by logging into the vm.
-  These directories are for dags/logs folder and we will be using it for triggering dags.
+  **Important:**
+  *Create below directories within minikube vm, by logging into the vm.
+  These directories are for dags/logs folder and we will be mounting these into pods for sharing & persistence.*
   ```
   minikube ssh
   sudo mkdir dags
@@ -33,7 +33,8 @@ This repo contains dockerfiles/yaml for airflow cluster components.
   For demo, i am sticking with this manual step.
 
 - Setup dependent repo
-  This repo has ElasticWorker/ElasticWorkerAutoscaler CRD and controllers code.
+
+  This repo has **ElasticWorker/ElasticWorkerAutoscaler** CRD and controllers code.
 
   ```
   git clone https://github.com/sarweshsuman/elastic-worker-autoscaler.git
@@ -43,7 +44,7 @@ This repo contains dockerfiles/yaml for airflow cluster components.
   make docker-build IMG=elastic-worker-controllers:0.1
   make deploy IMG=elastic-worker-controllers:0.1  
   ```
-  This compiles the controller code and builds image and deploys into minikube cluster namespace elastic-worker-autoscaler-system.
+  This compiles the controller code and builds image and deploys into minikube cluster namespace *elastic-worker-autoscaler-system*.
 
   Validate pod is up and fine.
   ```
@@ -51,8 +52,10 @@ This repo contains dockerfiles/yaml for airflow cluster components.
   ```
 
 - Setup custom metric APIserver adapter
+
   This repo has custom metric adapter code which works closely with ElasticWorkerAutoscaler controller.
-  This setup can be replaced with Prometheus setup for moving into production.
+
+  *This setup can be replaced with Prometheus setup if moving into production.*
 
   ```
   git clone https://github.com/sarweshsuman/elastic-worker-custommetrics-adapter.git
@@ -128,11 +131,13 @@ This repo contains dockerfiles/yaml for airflow cluster components.
 
   Validate all pods are up and running fine.
   ```
-  kubectl get pods -n default
+  kubectl get pods
   ```
 
 - Test the cluster with a DAG.
+
   To test we will have to first login into minikube vm and create a DAG file.
+
   Sample dag is at - https://github.com/sarweshsuman/elastic-airflow-cluster-k8s-setup-manifests/tree/master/sample-dags
 
   ```
@@ -161,5 +166,5 @@ This repo contains dockerfiles/yaml for airflow cluster components.
   ```
 
   - COPY ip, for example:- 192.168.64.8
-  - Open browser and type,
+  - Open browser and paste,
     https://192.168.64.8:31000/dashboard
