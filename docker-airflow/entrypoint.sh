@@ -3,6 +3,7 @@ INITIALIZE_DB=$2
 
 if [ "${INITIALIZE_DB}" = "initialize" ];
 then
+  airflow resetdb -y
   airflow initdb
 fi
 

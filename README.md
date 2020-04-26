@@ -17,7 +17,23 @@ This repo contains dockerfiles/yaml for airflow cluster components.
   eval $(minikube docker-env)
   ```
 
+  Important:
+  Create below directories within minikube vm, by logging into the vm.
+  These directories are for dags/logs folder and we will be using it for triggering dags.
+  ```
+  minikube ssh
+  sudo mkdir dags
+  sudo mkdir logs
+  sudo chmod -R 777 dags
+  sudo chmod -R 777 logs
+  logout
+  ```
+  This has to be done every time you restart minikube.
+  You can avoid this by creating a mount from your local mac to above path in minikube vm.
+  For demo, i am sticking with this manual step.
+
 - Setup dependent repo
+  This repo has ElasticWorker/ElasticWorkerAutoscaler CRD and controllers code.
 
   ```
   git clone https://github.com/sarweshsuman/elastic-worker-autoscaler.git
@@ -27,8 +43,7 @@ This repo contains dockerfiles/yaml for airflow cluster components.
   make docker-build IMG=elastic-worker-controllers:0.1
   make deploy IMG=elastic-worker-controllers:0.1  
   ```
-  This compiles the controller code and builds image and deploys into minikube cluster namespace
-  > elastic-worker-autoscaler-system
+  This compiles the controller code and builds image and deploys into minikube cluster namespace elastic-worker-autoscaler-system.
 
   Validate pod is up and fine.
   ```
@@ -36,6 +51,8 @@ This repo contains dockerfiles/yaml for airflow cluster components.
   ```
 
 - Setup custom metric APIserver adapter
+  This repo has custom metric adapter code which works closely with ElasticWorkerAutoscaler controller.
+  This setup can be replaced with Prometheus setup for moving into production.
 
   ```
   git clone https://github.com/sarweshsuman/elastic-worker-custommetrics-adapter.git
@@ -91,15 +108,58 @@ This repo contains dockerfiles/yaml for airflow cluster components.
 
   All needed images are now built.
 
-- Deploy into kubernetes
+  Validate all images are created.
+  ```
+  docker image ls
+  ```
 
-  Wait 5 seconds before running next command.
+- Deploy into minikube
+
+  Wait 5 seconds before running subsequent command, to avoid putting all load at once on your mac.
   ```
   cd ..
   kubectl create -f airflow-rabbitmq.yaml
   kubectl create -f airflow-postgres.yaml
-  kubectl create -f airflow-flower.yaml
   kubectl create -f airflow-scheduler.yaml
+  kubectl create -f airflow-flower.yaml
   kubectl create -f elasticcluster-worker.yaml
   kubectl create -f elasticcluster-autoscaler.yaml
   ```
+
+  Validate all pods are up and running fine.
+  ```
+  kubectl get pods -n default
+  ```
+
+- Test the cluster with a DAG.
+  To test we will have to first login into minikube vm and create a DAG file.
+  Sample dag is at - https://github.com/sarweshsuman/elastic-airflow-cluster-k8s-setup-manifests/tree/master/sample-dags
+
+  ```
+  minikube ssh
+  cd dags
+  cat>dag_1.py
+  ....PASTE CONTENT FROM SAMPLE DAG....
+  ctrl-d
+  logout
+  ```
+
+  Trigger the DAG from within scheduler pod.
+
+  ```
+  kubectl get pods
+  kubectl exec -it airflow-scheduler-76d5df7b9b-948k2 bash
+  >cd dags/
+  >airflow unpause dag_1
+  >airflow trigger_dag dag_1
+  >logout
+  ```
+  This will trigger the DAG. If everything is setup fine, worker will execute it.
+  You can open the flower UI for checking the status of the cluster.
+  ```
+  kubectl cluster-info
+  ```
+
+  - COPY ip, for example:- 192.168.64.8
+  - Open browser and type,
+    https://192.168.64.8:31000/dashboard
