@@ -167,4 +167,4 @@ This repo contains dockerfiles/yaml for airflow cluster components.
 
   - COPY ip, for example:- 192.168.64.8
   - Open browser and paste,
-    https://192.168.64.8:31000/dashboard
+    http://192.168.64.8:31000/dashboard
