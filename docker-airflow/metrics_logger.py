@@ -16,6 +16,7 @@ CELERY_WORKER_CONCURRENCY=int(os.environ.get("CELERY_WORKER_CONCURRENCY","16"))
 NAMESPACE=os.environ.get("NAMESPACE","default")
 METRIC_NAME_FORMAT=os.environ.get("POD_METRIC_NAME_FORMAT","elasticclustermetric_{}_{}_{}")
 CLUSTER_NAME=os.environ.get("CLUSTER_NAME","UNKNOWN_CLUSTER_NAME")
+REGISTERED_METRICS = ['load','total_cluster_load']
 
 def create_redis_connection():
     redis_conn = redis.Redis(host=REDIS_HOST,port=REDIS_PORT,db=REDIS_DB)
@@ -47,6 +48,10 @@ if __name__ == '__main__':
         except Exception as e:
             print("exception while connecting to redis {}".format(e))
             time.sleep(2)
+
+    print("Adding registered metrics")
+    for metric_name in REGISTERED_METRICS:
+        redis_conn.lpush("elasticclustermetric_registered_metric",metric_name)
 
     print("Starting metrics_logger")
     while True:
