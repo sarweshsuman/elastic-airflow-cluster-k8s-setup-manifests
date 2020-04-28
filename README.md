@@ -160,7 +160,9 @@ This repo contains dockerfiles/yaml for airflow cluster components.
   >logout
   ```
   This will trigger the DAG. If everything is fine, worker will execute it.
-  Note, you might see error in unpausing the dag, it is because scheduler has not yet picked the dag yet. If you retry this     issue will go away. Alternatively, you could use -sd mention the subdirectory manully.
+  
+  *Note*, you might see error in unpausing the dag, it is because scheduler has not yet picked the dag yet. If you retry this     issue will go away. Alternatively, you could use -sd mention the subdirectory manully.
+  
   You can open the flower UI for checking the status of the cluster.
   ```
   kubectl cluster-info
