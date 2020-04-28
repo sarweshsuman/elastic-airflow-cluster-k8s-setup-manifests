@@ -20,14 +20,8 @@ dag = DAG(
 
 task_1 = BashOperator(
     task_id='task_1',
-    bash_command='sleep 100',
+    bash_command='sleep 30;echo HI>/home/airflow/count_hi.txt',
     dag=dag,
 )
 
-task_2 = BashOperator(
-    task_id='task_2',
-    bash_command='echo sarwesh',
-    dag=dag,
-)
-
-task_1 >> task_2
+task_1 
