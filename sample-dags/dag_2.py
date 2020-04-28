@@ -20,7 +20,7 @@ dag = DAG(
 
 task_1 = BashOperator(
     task_id='task_1',
-    bash_command='sleep 30;echo HI>/home/airflow/count_hi.txt',
+    bash_command='sleep 30;echo HI>/home/airflow/logs/count_hi.txt',
     dag=dag,
 )
 
