@@ -2,6 +2,8 @@
 
 This repo contains dockerfiles/yaml for airflow cluster components.
 
+Follow blog on this - https://medium.com/@sarweshsuman.1/elastic-autoscaling-airflow-cluster-in-kubernetes-14c16c73cac9
+
 ## setting up for demo on mac
 
 - setup minikube
